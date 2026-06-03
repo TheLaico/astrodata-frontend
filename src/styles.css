@@ -546,6 +546,62 @@ pre,
   font-family: "Cascadia Code", Consolas, monospace;
 }
 
+.assisted-code-input {
+  min-height: 360px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.autocomplete-assistant {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  align-items: center;
+  border: 1px solid rgba(244, 247, 239, 0.14);
+  border-top: 0;
+  border-bottom-right-radius: 8px;
+  border-bottom-left-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(255, 224, 174, 0.08), rgba(255, 255, 255, 0.025)),
+    rgba(8, 10, 9, 0.58);
+  padding: 10px 12px;
+}
+
+.autocomplete-assistant > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: rgba(255, 236, 204, 0.96);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.autocomplete-assistant span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.autocomplete-assistant p {
+  grid-column: 1;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.autocomplete-assistant kbd {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  border: 1px solid rgba(255, 231, 190, 0.22);
+  border-radius: 6px;
+  background: rgba(18, 16, 14, 0.72);
+  color: rgba(244, 239, 229, 0.9);
+  padding: 5px 8px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
 .document-list,
 .object-list,
 .history {
