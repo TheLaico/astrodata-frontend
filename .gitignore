@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+.env.local
+.vite/
+frontend-verification.png
+black-hole-login-preview.png
