@@ -1,7 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { Bot, Search, Send } from "lucide-react";
+import { Bot, CheckCircle2, CircleDashed, LoaderCircle, Search, Send } from "lucide-react";
 import { api } from "../../api";
 import { Empty, Header, Notice } from "../../components/ui";
+
+const ragSteps = [
+  {
+    label: "Preparando consulta",
+    detail: "Normalizando la pregunta y preparando el contexto para el flujo RAG.",
+  },
+  {
+    label: "Buscando conocimiento",
+    detail: "Consultando embeddings y documentos relacionados con tu pregunta.",
+  },
+  {
+    label: "Ordenando fuentes",
+    detail: "Priorizando fragmentos recuperados por relevancia semantica.",
+  },
+  {
+    label: "Generando respuesta",
+    detail: "Construyendo una respuesta con las fuentes disponibles.",
+  },
+];
 
 export default function ChatPage() {
   const [question, setQuestion] = useState("Que objetos astronomicos aparecen en los documentos APOD?");
@@ -11,6 +30,7 @@ export default function ChatPage() {
   const [searchResult, setSearchResult] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
 
   async function loadHistory() {
     try {
@@ -24,10 +44,25 @@ export default function ChatPage() {
     loadHistory();
   }, []);
 
+  useEffect(() => {
+    if (!loading) {
+      setLoadingStep(0);
+      return undefined;
+    }
+
+    const interval = window.setInterval(() => {
+      setLoadingStep((current) => Math.min(current + 1, ragSteps.length - 1));
+    }, 1400);
+
+    return () => window.clearInterval(interval);
+  }, [loading]);
+
   async function ask(event) {
     event.preventDefault();
     setLoading(true);
+    setLoadingStep(0);
     setError("");
+    setAnswer(null);
     try {
       const data = await api.ask(question);
       setAnswer(data);
@@ -67,13 +102,35 @@ export default function ChatPage() {
       <div className="chat-grid">
         <article className="panel chat-panel">
           <form onSubmit={ask} className="ask-form">
-            <textarea value={question} onChange={(e) => setQuestion(e.target.value)} minLength={3} />
+            <textarea value={question} onChange={(e) => setQuestion(e.target.value)} minLength={3} disabled={loading} />
             <button className="primary-button" disabled={loading}>
-              <Send size={18} />
-              Consultar
+              {loading ? <LoaderCircle className="spin-icon" size={18} /> : <Send size={18} />}
+              {loading ? "Consultando..." : "Consultar"}
             </button>
           </form>
-          {answer ? (
+          {loading ? (
+            <div className="rag-progress" role="status" aria-live="polite">
+              <div className="rag-progress-header">
+                <LoaderCircle className="spin-icon" size={19} />
+                <div>
+                  <h2>{ragSteps[loadingStep].label}</h2>
+                  <p>{ragSteps[loadingStep].detail}</p>
+                </div>
+              </div>
+              <div className="rag-step-list">
+                {ragSteps.map((step, index) => {
+                  const done = index < loadingStep;
+                  const active = index === loadingStep;
+                  return (
+                    <div className={`rag-step ${done ? "done" : ""} ${active ? "active" : ""}`} key={step.label}>
+                      {done ? <CheckCircle2 size={16} /> : <CircleDashed size={16} />}
+                      <span>{step.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : answer ? (
             <div className="answer">
               <h2>Respuesta</h2>
               <p>{answer.respuesta}</p>
